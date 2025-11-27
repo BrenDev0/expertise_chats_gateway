@@ -3,25 +3,25 @@ import threading
 import logging
 from expertise_chats.broker import Consumer, BrokerConnection
 
-from src.auth.dependencies.handlers import get_auth_handler
-logger = logging.getLogger("auth.events.setup")
+from src.chats.dependencies.handlers import get_incomming_message_handler
+logger = logging.getLogger("messages.events.setup")
 
 AUTH_QUEUES = [
-    ("auth.validation", "auth.validation.validate")
+    ("messages.incomming", "messages.incomming.create")
 ]
 
-def __setup_auth_validation_consumer():
+def __setup_messages_incomming_consumer():
     consumer = Consumer(
-        queue_name="auth.validation",
-        handler=get_auth_handler()
+        queue_name="messages.incomming",
+        handler=get_incomming_message_handler()
     )
     
     thread = threading.Thread(target=consumer.start, daemon=True)
     thread.start()
-    logger.info("auth validation consumer listening")
+    logger.info("Messages incomming consumer listening")
 
 
-def initialize_auth_queues():
+def __initialize_messages_queues():
     EXCHANGE = os.getenv("EXCHANGE")
     channel = BrokerConnection.get_channel()
 
@@ -40,6 +40,12 @@ def initialize_auth_queues():
             routing_key=routing_key
         )
 
-    logger.info("General streaming queue initialized")
+    logger.info("Messages queues initialized")
 
-    __setup_auth_validation_consumer()
+    __setup_messages_incomming_consumer()
+
+
+
+
+def initialize_messages_broker():
+    __initialize_messages_queues()

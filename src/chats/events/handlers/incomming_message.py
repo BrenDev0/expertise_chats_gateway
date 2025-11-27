@@ -42,8 +42,11 @@ class IncommingMessageHandler(AsyncEventHandlerBase):
             event_message=message_saved_event
         )
 
-        ## send to session consumer
-        
+        ## send to session broker
+        self.__producer.publish(
+            routing_key="sessions.chat_history.update",
+            event_message=message_saved_event
+        )
 
 
 
