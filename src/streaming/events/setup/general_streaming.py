@@ -7,12 +7,12 @@ from src.streaming.dependencies.handlers import get_general_streaming_handler
 logger = logging.getLogger("features.sessions.setup")
 
 GENERAL_STREAMING_QUEUES = [
-    ("streaming.general", "streaming.general.outbound.send")
+    ("streaming.general.outbound", "streaming.general.outbound.send")
 ]
 
 def __setup_general_streaming_outbound_consumer():
     consumer = Consumer(
-        queue_name="streaming.audio.outbound",
+        queue_name="streaming.general.outbound",
         handler=get_general_streaming_handler()
     )
     

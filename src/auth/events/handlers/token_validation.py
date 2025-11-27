@@ -30,7 +30,6 @@ class AuthHandler(AsyncEventHandlerBase):
                 event_data=event_data
             )
 
-
             self.__producer.publish(
                 routing_key="messages.incoming.create",
                 event_message=new_message_event

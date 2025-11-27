@@ -47,7 +47,7 @@ async def websocket_interact(
             try:
                 req = InteractionRequest(**message)
                 producer.publish(
-                    routing_key="auth.validation",
+                    routing_key="auth.validation.validate",
                     event_message=req
                 )
             

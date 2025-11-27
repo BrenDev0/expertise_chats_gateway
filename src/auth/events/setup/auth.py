@@ -7,7 +7,7 @@ from src.auth.dependencies.handlers import get_auth_handler
 logger = logging.getLogger("auth.events.setup")
 
 AUTH_QUEUES = [
-    ("auth", "auth.validation")
+    ("auth.validation", "auth.validation.validate")
 ]
 
 def __setup_auth_validation_consumer():
