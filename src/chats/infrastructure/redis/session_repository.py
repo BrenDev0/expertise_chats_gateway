@@ -2,7 +2,7 @@ import json
 from typing import Optional, Dict, Any
 from redis import Redis
 import os
-from src.sessions.domain.repositories.sessions_repository import SessionRepository
+from src.chats.domain.repositories.sessions_repository import SessionRepository
 
 
 class RedisSessionRepository(SessionRepository):
