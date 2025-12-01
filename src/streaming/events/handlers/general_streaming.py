@@ -11,12 +11,13 @@ class GeneralStreamingHandler(AsyncEventHandlerBase):
     @streaming_error_hanlder(module="streaming.auido.outbound.handler")
     async def handle(self, payload: Dict[str, Any]):
         event = BaseEvent(**payload)
-        payload = WsPayload(**event.event_data)
+        ws_payload = WsPayload(**event.event_data)
+        
         ws = WebsocketConnectionsContainer.resolve_connection(event.chat_id)
         if not ws:
             return 
         
-        await ws.send_json(payload.model_dump())
+        await ws.send_json(ws_payload.model_dump())
 
         
 
