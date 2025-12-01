@@ -33,7 +33,7 @@ class IncommingMessageHandler(AsyncEventHandlerBase):
         message_saved_event = BaseEvent(
             chat_id=event.chat_id,
             user_id=event.user_id,
-            event_data= ws_payload.model_dump()
+            event_data=ws_payload.model_dump()
         )
 
         ## send message data to front
@@ -42,10 +42,16 @@ class IncommingMessageHandler(AsyncEventHandlerBase):
             event_message=message_saved_event
         )
 
-        ## send to session broker
+        update_chat_history_event = BaseEvent(
+            chat_id=event.chat_id,
+            user_id=event.user_id,
+            event_data=message.model_dump()
+        )
+
+        ## update chat history
         self.__producer.publish(
             routing_key="sessions.chat_history.update",
-            event_message=message_saved_event
+            event_message=update_chat_history_event
         )
 
 

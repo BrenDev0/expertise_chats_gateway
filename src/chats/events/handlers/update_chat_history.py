@@ -12,5 +12,5 @@ class UpdateChatHistoryHandler(EventHandlerBase):
     ):
         self.___producer = producer
 
-    def handle(self, payload):
+    def handle(self, payload: Dict[str, Any]):
         pass
