@@ -5,7 +5,8 @@ from uuid import UUID
 from src.app.interface.fastapi.middleware.hmac import verify_hmac
 from src.chats.domain.schemas.chats import ChatPublic, ChatUpdate, ChatCreate
 from src.shared.domain.schemas.http_responses import CommonHttpResponse
-
+from src.chats.application.use_cases.create_chat import CreateChat
+from src.chats.dependencies.use_cases import get_create_chat_use_case
 
 security = HTTPBearer()
 router = APIRouter(
@@ -17,7 +18,8 @@ router = APIRouter(
 @router.post("/secure/create", status_code=201, response_model=ChatPublic)
 def secure_create(
     req: Request,
-    data: ChatCreate = Body(...)
+    data: ChatCreate = Body(...),
+    create_chat_use_case: CreateChat = Depends(get_create_chat_use_case)
 ):
     """
     ## Chat create request
