@@ -15,6 +15,7 @@ class AuthHandler(AsyncEventHandlerBase):
     async def handle(self, payload: Dict[str, Any]):
         event = BaseEvent(**payload)
         event_data = InteractionRequest(**event.event_data)
+        
         try:
             token_payload = decode_token(token=event_data.token)
             user_id = token_payload.get("user_id", None)
@@ -23,31 +24,28 @@ class AuthHandler(AsyncEventHandlerBase):
             if not user_id or not company_id:
                 raise InvalidToken()
 
-
-            new_message_event = BaseEvent(
-                chat_id=event.chat_id,
-                user_id=user_id,
-                event_data=event_data
-            )
-
             self.__producer.publish(
                 routing_key="messages.incoming.create",
-                event_message=new_message_event
+                event_message=event
             )
+
         except ExpiredToken:
             error = AuthError(
                 error="Authorization Error",
                 detail="Expired token",
                 additional_info=str(event_data.token)
             )
+
             ws_payload = WsPayload(
                 type="ERROR",
                 data=error.model_dump()
             )
 
+            event.event_data = ws_payload
+
             self.__producer.publish(
                 routing_key="streaming.general.outbound.send",
-                event_message=ws_payload
+                event_message=event
             )
 
             return 
@@ -58,14 +56,17 @@ class AuthHandler(AsyncEventHandlerBase):
                 detail="Invalid token",
                 additional_info=str(event_data.token)
             )
+
             ws_payload = WsPayload(
                 type="ERROR",
                 data=error.model_dump()
             )
 
+            event.event_data = ws_payload
+
             self.__producer.publish(
                 routing_key="streaming.general.outbound.send",
-                event_message=ws_payload
+                event_message=event
             )
 
             return 
