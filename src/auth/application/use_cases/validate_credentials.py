@@ -1,8 +1,10 @@
+import logging
 from typing import Union
 from uuid import UUID
 from src.auth.domain.entities import Company
 from src.auth.domain.schemas import AuthError
 from src.shared.domain.repositories.data_repository import DataRepository
+logger = logging.getLogger(__name__)
 
 class ValidateCredentials:
     def __init__(
@@ -25,6 +27,7 @@ class ValidateCredentials:
             )
 
         if str(company.user_id) != str(user_id):
+            logger.warning(f"resource_id ::: {company_id} ::: resource ::: {company.model_dump()} ::: user ::: {user_id}")
             raise AuthError(
                 error="Authorization Error",
                 detail="Forbidden",

@@ -4,11 +4,7 @@ from src.auth.utils import decode_token
 logger = logging.getLogger(__name__)
 
 class ValidateToken:
-    def __init__(self):
-        pass
-
-
-    def execute(
+     def execute(
         self,
         token: str
     ):
@@ -19,6 +15,8 @@ class ValidateToken:
 
             if not user_id or not company_id:
                 raise InvalidToken()
+
+            return token_payload
 
         except ExpiredToken:
             raise
