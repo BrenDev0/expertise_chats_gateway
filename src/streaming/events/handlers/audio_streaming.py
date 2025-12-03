@@ -1,12 +1,11 @@
 import logging
 from typing import Any, Dict
 from expertise_chats.broker import AsyncEventHandlerBase, InteractionEvent
-
+from expertise_chats.schemas.ws import WsPayload
 from src.streaming.domain.services.text_to_speech import TextToSpeech
-
 from src.shared.utils.ws_connections import WebsocketConnectionsContainer
 from src.streaming.utils.decorators.streaming_error_handler import streaming_error_hanlder
-from src.shared.domain.schemas.ws_responses import WsPayload
+
 logger = logging.getLogger(__name__)
 
 class AudioStreamingHandler(AsyncEventHandlerBase):

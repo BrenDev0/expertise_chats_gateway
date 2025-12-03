@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, Any
 from expertise_chats.broker import AsyncEventHandlerBase, Producer, BaseEvent, InteractionEvent
+from expertise_chats.schemas.ws import WsPayload
 from src.auth.domain.exceptions import ExpiredToken, InvalidToken
 from src.auth.domain.schemas import AuthError
-from src.shared.domain.schemas.ws_responses import WsPayload
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.auth.application.use_cases.validate_credentials import ValidateCredentials
 from src.auth.application.use_cases.validate_token import ValidateToken

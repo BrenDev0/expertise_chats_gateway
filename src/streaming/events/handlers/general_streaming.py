@@ -1,9 +1,9 @@
 import logging
 from typing import Any, Dict
 from expertise_chats.broker import AsyncEventHandlerBase, BaseEvent
-
+from expertise_chats.schemas.ws import WsPayload
 from src.shared.utils.ws_connections import WebsocketConnectionsContainer
-from src.shared.domain.schemas.ws_responses import WsPayload
+
 from src.streaming.utils.decorators.streaming_error_handler import streaming_error_hanlder
 logger = logging.getLogger(__name__)
 

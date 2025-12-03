@@ -1,9 +1,9 @@
 from  typing import Dict, Any
 from expertise_chats.broker import AsyncEventHandlerBase, InteractionEvent
+from expertise_chats.schemas.ws import WsPayload
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.chats.application.use_cases.create_message import CreateMessage
 from expertise_chats.broker import Producer
-from src.shared.domain.schemas.ws_responses import WsPayload
 class IncommingMessageHandler(AsyncEventHandlerBase):
     def __init__(
         self,
