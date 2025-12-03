@@ -41,6 +41,7 @@ class AuthHandler(AsyncEventHandlerBase):
                 user_id=user_id,
                 company_id=company_id,
                 agent_id=event_data.agent_id,
+                voice=event_data.voice,
                 event_data=event_data
             )
             
