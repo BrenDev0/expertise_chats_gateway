@@ -3,7 +3,8 @@ from typing import Dict, Any
 from expertise_chats.broker import AsyncEventHandlerBase, Producer, BaseEvent, InteractionEvent
 from expertise_chats.schemas.ws import WsPayload
 from src.auth.domain.exceptions import ExpiredToken, InvalidToken
-from src.auth.domain.schemas import AuthError
+from src.auth.domain.schemas import RequestErrorBase
+from src.auth.domain.exceptions import AuthError
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.auth.application.use_cases.validate_credentials import ValidateCredentials
 from src.auth.application.use_cases.validate_token import ValidateToken
@@ -51,7 +52,7 @@ class AuthHandler(AsyncEventHandlerBase):
             )
 
         except ExpiredToken:
-            error = AuthError(
+            error = RequestErrorBase(
                 error="Authorization Error",
                 detail="Expired token",
                 additional_info=str(event_data.token)
@@ -72,7 +73,7 @@ class AuthHandler(AsyncEventHandlerBase):
             return 
         
         except InvalidToken:
-            error = AuthError(
+            error = RequestErrorBase(
                 error="Authorization Error",
                 detail="Invalid token",
                 additional_info=str(event_data.token)
@@ -93,6 +94,11 @@ class AuthHandler(AsyncEventHandlerBase):
             return 
         
         except AuthError as e:
+            error = RequestErrorBase(
+                error=e.error,
+                detail=e.detail,
+                additional_info=e.additional_info
+            )
             ws_payload = WsPayload(
                 type="ERROR",
                 data=e.model_dump()

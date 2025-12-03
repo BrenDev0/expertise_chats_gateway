@@ -51,16 +51,6 @@ async def websocket_interact(
                 
                 req = InteractionRequest(**message)
 
-                event = BaseEvent(
-                    chat_id=str(chat_id),
-                    event_data=req.model_dump()
-                )
-
-                producer.publish(
-                    routing_key="auth.validation.validate",
-                    event_message=event
-                )
-            
             except ValidationError as e:
                 logger.error(f"Bad request {e.errors()}")
 
@@ -89,6 +79,17 @@ async def websocket_interact(
                     data=error_response.model_dump()
                 )
                 await websocket.send_json(payload.model_dump())
+            
+            event = BaseEvent(
+                    chat_id=str(chat_id),
+                    event_data=req.model_dump()
+                )
+
+            producer.publish(
+                routing_key="auth.validation.validate",
+                event_message=event
+            )
+            
 
     except WebSocketDisconnect:
         WebsocketConnectionsContainer.remove_connection(chat_id)
