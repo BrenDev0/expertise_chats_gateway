@@ -1,9 +1,12 @@
+import os
 import logging
 from src.app.setup.broker import initialize_broker
 
 def startup_event():
+    level = os.getenv("LOGGER_LEVEL", logging.INFO)
+  
     logging.basicConfig(
-        level=logging.INFO,
+        level=int(level),
         format="%(levelname)s - %(name)s - %(message)s"
     )
 
