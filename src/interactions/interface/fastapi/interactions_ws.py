@@ -3,12 +3,12 @@ import os
 from  pydantic import ValidationError
 from fastapi import APIRouter, WebSocket, status, WebSocketDisconnect, Depends
 from uuid import UUID
-from expertise_chats.broker import Producer
+from expertise_chats.broker import Producer, BaseEvent
 from src.app.middleware.hmac.ws import verify_hmac_ws
 from src.shared.utils.ws_connections import WebsocketConnectionsContainer
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.shared.domain.schemas.ws_responses import WsPayload, RequestErrorBase
-from src.shared.events.schemas.interactions import InteractionEvent
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +51,8 @@ async def websocket_interact(
                 
                 req = InteractionRequest(**message)
 
-                event = InteractionEvent(
+                event = BaseEvent(
                     chat_id=chat_id,
-                    user_id="TBD",
-                    agent_id=req.agent_id,
                     event_data=req
                 )
 

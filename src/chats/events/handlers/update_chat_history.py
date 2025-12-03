@@ -1,9 +1,8 @@
 from  typing import Dict, Any
-from expertise_chats.broker import EventHandlerBase
+from expertise_chats.broker import EventHandlerBase, InteractionEvent
 from src.chats.application.use_cases.update_chat_history import UpdateChatHistory
 from expertise_chats.broker import Producer
 from src.chats.domain.entities.message import Message
-from src.shared.events.schemas.interactions import InteractionEvent
 class UpdateChatHistoryHandler(EventHandlerBase):
     def __init__(
         self,
