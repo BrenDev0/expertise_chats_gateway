@@ -52,8 +52,8 @@ async def websocket_interact(
                 req = InteractionRequest(**message)
 
                 event = BaseEvent(
-                    chat_id=chat_id,
-                    event_data=req
+                    chat_id=str(chat_id),
+                    event_data=req.model_dump()
                 )
 
                 producer.publish(
@@ -67,7 +67,7 @@ async def websocket_interact(
                 error_response = RequestErrorBase(
                     error="Bad Request",
                     additional_info=InteractionRequest.model_json_schema(),
-                    detail=e.errors()
+                    detail=str(e.errors())
                 )
     
                 payload = WsPayload(
