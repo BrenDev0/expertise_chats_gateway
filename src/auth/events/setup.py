@@ -21,7 +21,7 @@ def __setup_auth_validation_consumer():
     logger.info("auth validation consumer listening")
 
 
-def initialize_auth_queues():
+def __initialize_auth_queues():
     EXCHANGE = os.getenv("EXCHANGE")
     channel = BrokerConnection.get_channel()
 
@@ -46,4 +46,4 @@ def initialize_auth_queues():
 
 
 def initialize_auth_broker():
-    initialize_auth_queues()
+    __initialize_auth_queues()

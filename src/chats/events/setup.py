@@ -7,7 +7,7 @@ from src.chats.dependencies.handlers import get_incomming_message_handler, get_o
 logger = logging.getLogger("messages.events.setup")
 
 AUTH_QUEUES = [
-    ("messages.incomming", "messages.incomming.create")
+    ("messages.incomming", "messages.incomming.create"),
     ("messages.outgoing", "messages.outgoing.send")
 ]
 
