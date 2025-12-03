@@ -47,6 +47,7 @@ async def websocket_interact(
     try:
         while True: 
             message = await websocket.receive_json()
+            logger.debug(f"INCOMMING MESSAGE ::: {message}")
 
             try:
                 
