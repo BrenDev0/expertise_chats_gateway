@@ -1,16 +1,16 @@
 import logging
 from typing import Dict, Any
-from expertise_chats.broker import AsyncEventHandlerBase, Producer, BaseEvent, InteractionEvent
+from expertise_chats.broker import EventHandlerBase, Producer, BaseEvent, InteractionEvent
 from expertise_chats.schemas.ws import WsPayload
 from src.auth.domain.exceptions import ExpiredToken, InvalidToken
-from src.auth.domain.schemas import RequestErrorBase
+from src.shared.domain.schemas.ws_responses import RequestErrorBase
 from src.auth.domain.exceptions import AuthError
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.auth.application.use_cases.validate_credentials import ValidateCredentials
 from src.auth.application.use_cases.validate_token import ValidateToken
 logger = logging.getLogger(__name__)
 
-class AuthHandler(AsyncEventHandlerBase):
+class AuthHandler(EventHandlerBase):
     def __init__(
         self, 
         producer: Producer,
@@ -21,7 +21,7 @@ class AuthHandler(AsyncEventHandlerBase):
         self.__validate_token = validate_token
         self.__validate_credentials = validate_credentials
 
-    async def handle(self, payload: Dict[str, Any]):
+    def handle(self, payload: Dict[str, Any]):
         event = BaseEvent(**payload)
         event_data = InteractionRequest(**event.event_data)
         
@@ -29,6 +29,7 @@ class AuthHandler(AsyncEventHandlerBase):
             token_payload = self.__validate_token.execute(
                 token=event_data.token
             )
+            logger.debug(f"token validated")
             user_id = token_payload.get("user_id", None)
             company_id = token_payload.get("company_id", None)
 
@@ -36,16 +37,17 @@ class AuthHandler(AsyncEventHandlerBase):
                 company_id=company_id,
                 user_id=user_id
             )
+            logger.debug(f"Credentials validated")
 
             interaction_event = InteractionEvent(
-                chat_id=event.chat_id,
-                user_id=user_id,
-                company_id=company_id,
-                agent_id=event_data.agent_id,
+                chat_id=str(event.chat_id),
+                user_id=str(user_id),
+                company_id=str(company_id),
+                agent_id=str(event_data.agent_id),
                 voice=event_data.voice,
-                event_data=event_data
+                event_data=event_data.model_dump()
             )
-            
+            logger.debug("to publish")
             self.__producer.publish(
                 routing_key="messages.incoming.create",
                 event_message=interaction_event

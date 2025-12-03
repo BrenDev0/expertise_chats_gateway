@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from uuid import UUID
 
@@ -7,4 +7,9 @@ class InteractionRequest(BaseModel):
     agent_id: UUID
     input: str
     voice: Optional[bool] = False
+
+    model_config = ConfigDict(
+        extra="forbid"
+    )
+    
 

@@ -1,6 +1,6 @@
 import logging
 from src.auth.domain.exceptions import ExpiredToken, InvalidToken
-from src.auth.utils import decode_token
+from src.auth.utils.decode_token import decode_token
 logger = logging.getLogger(__name__)
 
 class ValidateToken:

@@ -66,6 +66,7 @@ async def websocket_interact(
                 )
 
                 await websocket.send_json(payload.model_dump())
+                return 
             
             except Exception as e:
                 logger.error(f"Error receiving message: {e}")
@@ -79,6 +80,7 @@ async def websocket_interact(
                     data=error_response.model_dump()
                 )
                 await websocket.send_json(payload.model_dump())
+                return 
             
             event = BaseEvent(
                     chat_id=str(chat_id),
