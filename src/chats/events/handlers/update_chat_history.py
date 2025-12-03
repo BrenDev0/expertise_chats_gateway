@@ -3,6 +3,7 @@ from expertise_chats.broker import EventHandlerBase, InteractionEvent
 from src.chats.application.use_cases.update_chat_history import UpdateChatHistory
 from expertise_chats.broker import Producer
 from src.chats.domain.entities.message import Message
+
 class UpdateChatHistoryHandler(EventHandlerBase):
     def __init__(
         self,
@@ -21,18 +22,19 @@ class UpdateChatHistoryHandler(EventHandlerBase):
             new_message=message
         )
 
-        llm_event_data = {
-            "chat_id": event.chat_id,
-            "company_id": event.company_id,
-            "chat_history": chat_history
-        }
+        if not event.turn_complete:
+            llm_event_data = {
+                "chat_id": event.chat_id,
+                "company_id": event.company_id,
+                "chat_history": chat_history
+            }
 
-        event.event_data = llm_event_data
-        
-        self.___producer.publish(
-            routing_key=f"llm.incomming.{event.agent_id}",
-            event_message=event
-        )
+            event.event_data = llm_event_data
+            
+            self.___producer.publish(
+                routing_key=f"llm.incomming.{event.agent_id}",
+                event_message=event
+            )
 
 
 

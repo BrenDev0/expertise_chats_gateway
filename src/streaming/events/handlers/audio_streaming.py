@@ -1,6 +1,6 @@
 import logging
 from typing import Any, Dict
-from expertise_chats.broker import AsyncEventHandlerBase, BaseEvent
+from expertise_chats.broker import AsyncEventHandlerBase, InteractionEvent
 
 from src.streaming.domain.services.text_to_speech import TextToSpeech
 
@@ -18,7 +18,7 @@ class AudioStreamingHandler(AsyncEventHandlerBase):
 
     @streaming_error_hanlder(module="streaming.auido.outbound.handler")
     async def handle(self, payload: Dict[str, Any]):
-        event = BaseEvent(**payload)
+        event = InteractionEvent(**payload)
         ws_payload = WsPayload(**event.event_data)
         
         ws = WebsocketConnectionsContainer.resolve_connection(event.chat_id)
