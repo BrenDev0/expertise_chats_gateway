@@ -1,12 +1,13 @@
 import logging
 from typing import Dict, Any
-from expertise_chats.broker import AsyncEventHandlerBase, BaseEvent, Producer
+from expertise_chats.broker import AsyncEventHandlerBase, Producer
 from src.auth.domain.exceptions import ExpiredToken, InvalidToken
 from src.auth.domain.schemas import AuthError
 from src.shared.domain.schemas.ws_responses import WsPayload
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.auth.application.use_cases.validate_credentials import ValidateCredentials
 from src.auth.application.use_cases.validate_token import ValidateToken
+from src.shared.events.schemas.interactions import InteractionEvent
 logger = logging.getLogger(__name__)
 
 class AuthHandler(AsyncEventHandlerBase):
@@ -21,7 +22,7 @@ class AuthHandler(AsyncEventHandlerBase):
         self.__validate_credentials = validate_credentials
 
     async def handle(self, payload: Dict[str, Any]):
-        event = BaseEvent(**payload)
+        event = InteractionEvent(**payload)
         event_data = InteractionRequest(**event.event_data)
         
         try:
@@ -35,6 +36,8 @@ class AuthHandler(AsyncEventHandlerBase):
                 company_id=company_id,
                 user_id=user_id
             )
+            
+            event.user_id = user_id
 
             self.__producer.publish(
                 routing_key="messages.incoming.create",

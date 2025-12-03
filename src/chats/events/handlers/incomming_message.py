@@ -1,10 +1,10 @@
 from  typing import Dict, Any
-from expertise_chats.broker import AsyncEventHandlerBase, BaseEvent
+from expertise_chats.broker import AsyncEventHandlerBase
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.chats.application.use_cases.create_message import CreateMessage
 from expertise_chats.broker import Producer
 from src.shared.domain.schemas.ws_responses import WsPayload
-
+from src.shared.events.schemas.interactions import InteractionEvent
 class IncommingMessageHandler(AsyncEventHandlerBase):
     def __init__(
         self,
@@ -15,7 +15,7 @@ class IncommingMessageHandler(AsyncEventHandlerBase):
         self.__producer = producer
 
     async def handle(self, payload: Dict[str, Any]):
-        event = BaseEvent(**payload)
+        event = InteractionEvent(**payload)
         event_data = InteractionRequest(**event.event_data)
 
         message = self.__create_message.execute(
@@ -31,7 +31,6 @@ class IncommingMessageHandler(AsyncEventHandlerBase):
         )
 
         event.event_data = ws_payload
-
 
         ## send message data to front
         self.__producer.publish(

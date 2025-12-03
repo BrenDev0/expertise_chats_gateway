@@ -8,6 +8,7 @@ from src.app.middleware.hmac.ws import verify_hmac_ws
 from src.shared.utils.ws_connections import WebsocketConnectionsContainer
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.shared.domain.schemas.ws_responses import WsPayload, RequestErrorBase
+from src.shared.events.schemas.interactions import InteractionEvent
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ async def websocket_interact(
     chat_id: UUID,
     producer: Producer = Depends(get_producer)
 ):
-    await websocket.accept()
+    
     params = websocket.query_params
     signature = params.get("x-signature")
     payload = params.get("x-payload")
@@ -35,6 +36,8 @@ async def websocket_interact(
     if not await verify_hmac_ws(signature, payload):
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
+
+    await websocket.accept()
 
     WebsocketConnectionsContainer.register_connection(chat_id, websocket)
     
@@ -45,10 +48,19 @@ async def websocket_interact(
             message = await websocket.receive_json()
 
             try:
+                
                 req = InteractionRequest(**message)
+
+                event = InteractionEvent(
+                    chat_id=chat_id,
+                    user_id="TBD",
+                    agent_id=req.agent_id,
+                    event_data=req
+                )
+
                 producer.publish(
                     routing_key="auth.validation.validate",
-                    event_message=req
+                    event_message=event
                 )
             
             except ValidationError as e:
