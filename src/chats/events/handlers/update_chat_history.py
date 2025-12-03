@@ -32,7 +32,7 @@ class UpdateChatHistoryHandler(EventHandlerBase):
             event.event_data = llm_event_data
             
             self.___producer.publish(
-                routing_key=f"llm.incomming.{event.agent_id}",
+                routing_key=f"{event.agent_id}.process",
                 event_message=event
             )
 
