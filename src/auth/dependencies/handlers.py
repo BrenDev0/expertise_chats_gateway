@@ -3,6 +3,7 @@ from src.shared.dependencies.container import Container
 from src.shared.domain.exceptions.dependencies import DependencyNotRegistered
 from src.shared.dependencies.producers import get_producer
 from src.auth.events.handlers.validate_bearer import AuthHandler
+from src.auth.dependencies.use_cases import get_validate_credentials_use_case, get_validate_token_use_case
 logger = logging.getLogger(__name__)
 
 def get_auth_handler() -> AuthHandler:
@@ -12,7 +13,9 @@ def get_auth_handler() -> AuthHandler:
 
     except DependencyNotRegistered:
         handler = AuthHandler(
-            producer=get_producer()
+            producer=get_producer(),
+            validate_credentials=get_validate_credentials_use_case(),
+            validate_token=get_validate_token_use_case()
         )
 
         Container.register(instance_key, handler)
