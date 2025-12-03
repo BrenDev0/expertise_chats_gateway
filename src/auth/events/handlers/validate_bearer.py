@@ -39,6 +39,7 @@ class AuthHandler(AsyncEventHandlerBase):
             interaction_event = InteractionEvent(
                 chat_id=event.chat_id,
                 user_id=user_id,
+                company_id=company_id,
                 agent_id=event_data.agent_id,
                 event_data=event_data
             )

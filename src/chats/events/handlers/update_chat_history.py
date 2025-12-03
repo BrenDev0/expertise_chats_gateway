@@ -23,14 +23,14 @@ class UpdateChatHistoryHandler(EventHandlerBase):
 
         llm_event_data = {
             "chat_id": event.chat_id,
-            "company_id": event.chat_id,
+            "company_id": event.company_id,
             "chat_history": chat_history
         }
 
         event.event_data = llm_event_data
         
         self.___producer.publish(
-            routing_key="llm.incomming.invoke",
+            routing_key=f"llm.incomming.{event.agent_id}",
             event_message=event
         )
 
