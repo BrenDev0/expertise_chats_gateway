@@ -1,6 +1,6 @@
 import logging
-from typing import Any, Dict
-from expertise_chats.broker import AsyncEventHandlerBase, InteractionEvent
+from typing import Any, Dict, Union
+from expertise_chats.broker import AsyncEventHandlerBase, InteractionEvent, BaseEvent
 from expertise_chats.schemas.ws import WsPayload
 from src.streaming.domain.services.text_to_speech import TextToSpeech
 from src.shared.utils.ws_connections import WebsocketConnectionsContainer
@@ -15,8 +15,9 @@ class AudioStreamingHandler(AsyncEventHandlerBase):
     ):
         self.__tts_service = tts_service
 
-    @streaming_error_hanlder(module="streaming.auido.outbound.handler")
     async def handle(self, payload: Dict[str, Any]):
+        logger.debug(f"Streaming Audio handler received request ::: {payload}")
+        
         event = InteractionEvent(**payload)
         ws_payload = WsPayload(**event.event_data)
         
@@ -26,9 +27,18 @@ class AudioStreamingHandler(AsyncEventHandlerBase):
         
         audio_chunk = self.__tts_service.transcribe(ws_payload.data)
         ws_payload.data = audio_chunk
-
-        await ws.send_json(ws_payload.model_dump())
-
+       
+        logger.debug(f"Streaming  Audio Sending ::: {ws_payload.model_dump()}")
+        
+        try:
+            await ws.send_json(ws_payload.model_dump())
+        except Exception as e:
+                if "closed" in str(e).lower() or "disconnect" in str(e).lower():
+                    logger.info(f"Connection {event.chat_id} disconnected")
+                    return
+                
+                logger.error(f"Connection id: {event.chat_id} ::::, Error sending data :::: {e}")
+                raise e
         
 
     

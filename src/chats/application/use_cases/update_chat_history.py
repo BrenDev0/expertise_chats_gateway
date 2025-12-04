@@ -9,10 +9,10 @@ class UpdateChatHistory:
     def __init__(
         self,
         session_repository: SessionRepository,
-        messages_repositoy: MessagesRepository
+        messages_repository: MessagesRepository
     ):
         self.__sessions_repository = session_repository
-        self.__messages_repository = messages_repositoy
+        self.__messages_repository = messages_repository
 
     def execute(
         self,

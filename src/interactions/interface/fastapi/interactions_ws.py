@@ -1,14 +1,14 @@
 import logging
 import os
-from  pydantic import ValidationError
+from pydantic import ValidationError
 from fastapi import APIRouter, WebSocket, status, WebSocketDisconnect, Depends
 from uuid import UUID
 from expertise_chats.broker import Producer, BaseEvent
-from expertise_chats.schemas.ws import WsPayload
+from expertise_chats.schemas.ws import WsPayload, RequestErrorBase
 from src.app.middleware.hmac.ws import verify_hmac_ws
 from src.shared.utils.ws_connections import WebsocketConnectionsContainer
 from src.shared.domain.schemas.ws_requests import InteractionRequest
-from src.shared.domain.schemas.ws_responses import RequestErrorBase
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(

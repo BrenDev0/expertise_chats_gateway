@@ -3,12 +3,14 @@ import threading
 import logging
 from expertise_chats.broker import Consumer, BrokerConnection
 
-from src.chats.dependencies.handlers import get_incomming_message_handler, get_outgoing_message_handler
+from src.chats.dependencies.handlers import get_incomming_message_handler, get_outgoing_message_handler, get_chat_history_handler
 logger = logging.getLogger("messages.events.setup")
 
 AUTH_QUEUES = [
     ("messages.incomming", "messages.incomming.create"),
-    ("messages.outgoing", "messages.outgoing.send")
+    ("messages.outgoing", "messages.outgoing.send"),
+    ("chats.history", "chats.history.update")
+
 ]
 
 def __setup_messages_incomming_consumer():
@@ -33,6 +35,16 @@ def __setup_messages_outgoing_consumer():
     logger.info("Messages outgoing consumer listening")
 
 
+def __setup_chat_history_consumer():
+    consumer = Consumer(
+        queue_name="chats.history",
+        handler=get_chat_history_handler()
+    )
+    
+    thread = threading.Thread(target=consumer.start, daemon=True)
+    thread.start()
+    logger.info("Chat history consumer listening")
+
 def __initialize_messages_queues():
     EXCHANGE = os.getenv("EXCHANGE")
     channel = BrokerConnection.get_channel()
@@ -56,6 +68,7 @@ def __initialize_messages_queues():
 
     __setup_messages_incomming_consumer()
     __setup_messages_outgoing_consumer()
+    __setup_chat_history_consumer()
 
 
 

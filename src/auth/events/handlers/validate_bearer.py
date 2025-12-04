@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, Any
 from expertise_chats.broker import EventHandlerBase, Producer, BaseEvent, InteractionEvent
-from expertise_chats.schemas.ws import WsPayload
+from expertise_chats.errors.error_handler import handle_error
+from expertise_chats.schemas.ws import RequestErrorBase
 from src.auth.domain.exceptions import ExpiredToken, InvalidToken
-from src.shared.domain.schemas.ws_responses import RequestErrorBase
 from src.auth.domain.exceptions import AuthError
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.auth.application.use_cases.validate_credentials import ValidateCredentials
@@ -22,14 +22,15 @@ class AuthHandler(EventHandlerBase):
         self.__validate_credentials = validate_credentials
 
     def handle(self, payload: Dict[str, Any]):
+        logger.debug(f"Auth handler received request ::: {payload}")
+        
         event = BaseEvent(**payload)
         event_data = InteractionRequest(**event.event_data)
-        
         try:
             token_payload = self.__validate_token.execute(
                 token=event_data.token
             )
-            logger.debug(f"token validated")
+            
             user_id = token_payload.get("user_id", None)
             company_id = token_payload.get("company_id", None)
 
@@ -37,7 +38,6 @@ class AuthHandler(EventHandlerBase):
                 company_id=company_id,
                 user_id=user_id
             )
-            logger.debug(f"Credentials validated")
 
             interaction_event = InteractionEvent(
                 chat_id=str(event.chat_id),
@@ -47,9 +47,9 @@ class AuthHandler(EventHandlerBase):
                 voice=event_data.voice,
                 event_data=event_data.model_dump()
             )
-            logger.debug("to publish")
+            logger.debug(f"Publishing to messages.incomming.create ::: {interaction_event.model_dump()}")
             self.__producer.publish(
-                routing_key="messages.incoming.create",
+                routing_key="messages.incomming.create",
                 event_message=interaction_event
             )
 
@@ -60,16 +60,10 @@ class AuthHandler(EventHandlerBase):
                 additional_info=str(event_data.token)
             )
 
-            ws_payload = WsPayload(
-                type="ERROR",
-                data=error.model_dump()
-            )
-
-            event.event_data = ws_payload
-
-            self.__producer.publish(
-                routing_key="streaming.general.outbound.send",
-                event_message=event
+            handle_error(
+                event=event,
+                producer=self.__producer,
+                error=error
             )
 
             return 
@@ -81,16 +75,10 @@ class AuthHandler(EventHandlerBase):
                 additional_info=str(event_data.token)
             )
 
-            ws_payload = WsPayload(
-                type="ERROR",
-                data=error.model_dump()
-            )
-
-            event.event_data = ws_payload
-
-            self.__producer.publish(
-                routing_key="streaming.general.outbound.send",
-                event_message=event
+            handle_error(
+                event=event,
+                producer=self.__producer,
+                error=error
             )
 
             return 
@@ -101,19 +89,20 @@ class AuthHandler(EventHandlerBase):
                 detail=e.detail,
                 additional_info=e.additional_info
             )
-            ws_payload = WsPayload(
-                type="ERROR",
-                data=e.model_dump()
+
+            handle_error(
+                event=event,
+                producer=self.__producer,
+                error=error
             )
-
-            event.event_data = ws_payload
-
-            self.__producer.publish(
-                routing_key="streaming.general.outbound.send",
-                event_message=event
+            return 
+        
+        except Exception as e:
+            logger.error(str(e))
+            handle_error(
+                event=event,
+                producer=self.__producer,
+                server_error=True
             )
 
             return 
-        
-        except ValueError as e:
-            logger.error(f"{str(e)}")
