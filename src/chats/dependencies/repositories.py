@@ -1,6 +1,6 @@
 import logging
-from src.shared.dependencies.container import Container
-from src.shared.domain.exceptions.dependencies import DependencyNotRegistered
+from expertise_chats.dependencies.container import Container
+from expertise_chats.exceptions.dependencies import DependencyNotRegistered
 
 from src.chats.domain.repositories.message_repository import MessagesRepository
 from  src.chats.infrastructure.sqlAlchemy.messages_repository import SqlAlchemyMessagesRepository

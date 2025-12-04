@@ -1,6 +1,6 @@
 import logging
-from src.shared.dependencies.container import Container
-from src.shared.domain.exceptions.dependencies import DependencyNotRegistered
+from expertise_chats.dependencies.container import Container
+from expertise_chats.exceptions.dependencies import DependencyNotRegistered
 from src.shared.domain.repositories.data_repository import DataRepository
 from src.auth.infrastructure.sqlAlchemy.companies_repository import SqlAlchemyCompaniesRepsoitory
 logger = logging.getLogger(__name__)

@@ -131,7 +131,7 @@ wheels = [
 [[package]]
 name = "expertise-chats"
 version = "0.1.0"
-source = { git = "https://github.com/BrenDev0/expertise_chats_shared.git#829f90142cdf31930cb318f6151aff3163f9b92a" }
+source = { git = "https://github.com/BrenDev0/expertise_chats_shared.git#a5de8fc17d662a18da8301aa0d119ceba784506f" }
 dependencies = [
     { name = "pika" },
     { name = "pydantic" },

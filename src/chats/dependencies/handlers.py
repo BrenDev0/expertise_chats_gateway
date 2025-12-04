@@ -1,6 +1,6 @@
 import logging
-from src.shared.dependencies.container import Container
-from src.shared.domain.exceptions.dependencies import DependencyNotRegistered
+from expertise_chats.dependencies.container import Container
+from expertise_chats.exceptions.dependencies import DependencyNotRegistered
 from src.chats.events.handlers.incomming_message import IncommingMessageHandler
 from src.chats.events.handlers.outgoing_message import OutgoingMessageHandler
 from src.chats.events.handlers.update_chat_history import UpdateChatHistoryHandler

@@ -1,6 +1,6 @@
 import logging
-from src.shared.dependencies.container import Container
-from src.shared.domain.exceptions.dependencies import DependencyNotRegistered
+from expertise_chats.dependencies.container import Container
+from  expertise_chats.exceptions.dependencies import DependencyNotRegistered
 from src.shared.dependencies.producers import get_producer
 from src.auth.events.handlers.validate_bearer import AuthHandler
 from src.auth.dependencies.use_cases import get_validate_credentials_use_case, get_validate_token_use_case
