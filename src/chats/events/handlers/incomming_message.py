@@ -46,7 +46,7 @@ class IncommingMessageHandler(AsyncEventHandlerBase):
 
             event.event_data = message.model_dump()
 
-            logger.debug(f"Publishing to sessions.chat_history.update ::: {event.model_dump()}")
+            logger.debug(f"Publishing to chats.history.update ::: {event.model_dump()}")
             ## update chat history
             self.__producer.publish(
                 routing_key="chats.history.update",

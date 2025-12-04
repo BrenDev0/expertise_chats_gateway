@@ -1,4 +1,5 @@
 from typing import Union
+import json
 from uuid import UUID
 from src.chats.domain.repositories.sessions_repository import SessionRepository
 from src.chats.domain.repositories.message_repository import MessagesRepository
@@ -17,7 +18,8 @@ class UpdateChatHistory:
     def execute(
         self,
         chat_id: Union[str, UUID],
-        new_message: Message
+        new_message: Message,
+        exp_seconds: int = 3600
     ):
         session = self.__sessions_repository.get_session(
             key=str(chat_id)
@@ -28,17 +30,22 @@ class UpdateChatHistory:
                 key="chat_id",
                 value=chat_id,
                 limit=9
-            )
+            ) or []
 
-            chat_history.insert(0, new_message.model_dump())
+            chat_history = [new_message.model_dump(exclude_unset=False)]
         
         else: 
             chat_history = session
-            chat_history.insert(0, new_message.model_dump())
+            chat_history.insert(0, new_message.model_dump(exclude_unset=False))
 
             if len(chat_history) > 10:
                 chat_history.pop()
         
+        self.__sessions_repository.set_session(
+            key=str(chat_id),
+            value=json.dumps(chat_history),
+            expire_seconds=exp_seconds
+        )
         return chat_history
         
 

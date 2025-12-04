@@ -10,7 +10,6 @@ AUTH_QUEUES = [
     ("messages.incomming", "messages.incomming.create"),
     ("messages.outgoing", "messages.outgoing.send"),
     ("chats.history", "chats.history.update")
-
 ]
 
 def __setup_messages_incomming_consumer():

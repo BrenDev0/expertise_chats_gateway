@@ -1,9 +1,9 @@
 import logging
-from  dotenv import load_dotenv
+from dotenv import load_dotenv
 load_dotenv()
 import uvicorn
 from src.app.interface.fastapi.server import create_fastapi_app
-from  src.app.setup.startup import startup_event
+from src.app.setup.startup import startup_event
 
 startup_event ()
 logger = logging.getLogger(__name__)

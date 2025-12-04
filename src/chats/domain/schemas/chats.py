@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-import uuid
+from  uuid import UUID 
 from pydantic.alias_generators import to_camel
 
 
@@ -18,10 +18,12 @@ class ChatUpdate(ChatConfig):
     title: str
 
 class ChatPublic(ChatCreate):
-    chat_id: uuid.UUID
-    user_id: uuid.UUID
-    
-   
+    chat_id: UUID
+    user_id: UUID
+      
 class ChatCreateResponse(ChatConfig):
-    chat_id: uuid.UUID
+    chat_id: UUID
+
+class GenerateChatTitle(ChatCreateResponse):
+    pass
 
