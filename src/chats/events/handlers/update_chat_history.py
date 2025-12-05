@@ -1,16 +1,70 @@
-from  typing import Dict, Any
-from expertise_chats.broker import EventHandlerBase, BaseEvent
-from src.shared.domain.schemas.ws_requests import InteractionRequest
-from src.chats.application.use_cases.create_message import CreateMessage
+import logging
+from typing import Dict, Any
+from expertise_chats.broker import EventHandlerBase, InteractionEvent
+from expertise_chats.errors.error_handler import handle_error
+from src.chats.application.use_cases.update_chat_history import UpdateChatHistory
+from src.chats.domain.schemas.chats import GenerateChatTitle
 from expertise_chats.broker import Producer
-from src.shared.domain.schemas.ws_responses import WsPayload
+from src.chats.domain.entities.message import Message
+
+logger = logging.getLogger(__name__)
 
 class UpdateChatHistoryHandler(EventHandlerBase):
     def __init__(
         self,
-        producer: Producer
+        producer: Producer,
+        update_chat_history: UpdateChatHistory
     ):
         self.___producer = producer
+        self.__update_chat_history = update_chat_history
 
     def handle(self, payload: Dict[str, Any]):
-        pass
+        logger.debug(f"Update chat history handler received request ::: {payload}")
+        try:
+            event = InteractionEvent(**payload)
+            message = Message(**event.event_data)
+
+            chat_history = self.__update_chat_history.execute(
+                chat_id=event.chat_id,
+                new_message=message
+            )
+
+            if not event.turn_complete:
+                llm_event_data = {
+                    "chat_history": chat_history
+                }
+
+                event.event_data = llm_event_data
+                
+                logger.debug(f"Publishing to {event.agent_id}.process ::: {event.model_dump()}")
+                self.___producer.publish(
+                    routing_key=f"{event.agent_id}.process",
+                    event_message=event
+                )
+
+                if len(chat_history) == 1:
+                    generate_title_data = GenerateChatTitle(
+                        chat_id=event.chat_id,
+                        first_message=message.text
+                    )
+
+                    event.event_data = generate_title_data.model_dump()
+
+                    logger.debug(f"Publishing to chats.title.generate ::: {event.model_dump()}")
+                    self.___producer.publish(
+                        routing_key="chats.title.generate",
+                        event_message=event
+                    )
+
+        except Exception as e:
+            logger.error(str(e))
+            handle_error(
+                event=event,
+                producer=self.___producer,
+                server_error=True
+            )
+
+
+
+
+

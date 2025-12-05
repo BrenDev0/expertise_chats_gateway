@@ -1,6 +1,6 @@
 import logging
-from src.shared.dependencies.container import Container
-from src.shared.domain.exceptions.dependencies import DependencyNotRegistered
+from expertise_chats.dependencies.container import Container
+from expertise_chats.exceptions.dependencies import DependencyNotRegistered
 
 from src.streaming.events.handlers.audio_streaming import AudioStreamingHandler
 from src.streaming.events.handlers.general_streaming import GeneralStreamingHandler

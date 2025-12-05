@@ -1,9 +1,12 @@
-from  typing import Dict, Any
-from expertise_chats.broker import AsyncEventHandlerBase, BaseEvent
+import logging
+from typing import Dict, Any
+from expertise_chats.broker import AsyncEventHandlerBase, InteractionEvent, Producer
+from expertise_chats.schemas.ws import WsPayload
+from expertise_chats.errors.error_handler import handle_error
 from src.shared.domain.schemas.ws_requests import InteractionRequest
 from src.chats.application.use_cases.create_message import CreateMessage
-from expertise_chats.broker import Producer
-from src.shared.domain.schemas.ws_responses import WsPayload
+
+logger = logging.getLogger(__name__)
 
 class IncommingMessageHandler(AsyncEventHandlerBase):
     def __init__(
@@ -15,44 +18,50 @@ class IncommingMessageHandler(AsyncEventHandlerBase):
         self.__producer = producer
 
     async def handle(self, payload: Dict[str, Any]):
-        event = BaseEvent(**payload)
-        event_data = InteractionRequest(**event.event_data)
+        logger.debug(f"Incomming message handler received request ::: {payload}")
+        try:
+            event = InteractionEvent(**payload)
+            event_data = InteractionRequest(**event.event_data)
 
-        message = self.__create_message.execute(
-            chat_id=event.chat_id,
-            sender_id=event.user_id,
-            message_type="human",
-            text=event_data.input
-        )
+            message = self.__create_message.execute(
+                chat_id=event.chat_id,
+                sender_id=event.user_id,
+                message_type="human",
+                text=event_data.input
+            )
 
-        ws_payload = WsPayload(
-            type="MESSAGE",
-            data=message.model_dump()
-        )
+            ws_payload = WsPayload(
+                type="MESSAGE",
+                data=message.model_dump()
+            )
 
-        message_saved_event = BaseEvent(
-            chat_id=event.chat_id,
-            user_id=event.user_id,
-            event_data=ws_payload.model_dump()
-        )
+            event.event_data = ws_payload.model_dump()
 
-        ## send message data to front
-        self.__producer.publish(
-            routing_key="streaming.general.outbound.send",
-            event_message=message_saved_event
-        )
+            logger.debug(f"Publishing to streaming.general.outbound.send ::: {event.model_dump()}")
+            ## send message data to front
+            self.__producer.publish(
+                routing_key="streaming.general.outbound.send",
+                event_message=event
+            )
 
-        update_chat_history_event = BaseEvent(
-            chat_id=event.chat_id,
-            user_id=event.user_id,
-            event_data=message.model_dump()
-        )
+            event.event_data = message.model_dump()
 
-        ## update chat history
-        self.__producer.publish(
-            routing_key="sessions.chat_history.update",
-            event_message=update_chat_history_event
-        )
+            logger.debug(f"Publishing to chats.history.update ::: {event.model_dump()}")
+            ## update chat history
+            self.__producer.publish(
+                routing_key="chats.history.update",
+                event_message=event
+            )
+
+        except Exception as e:
+            logger.error(str(e))
+            handle_error(
+                event=event,
+                producer=self.__producer,
+                server_error=True
+            )
+            return 
+
 
 
 

@@ -1,6 +1,6 @@
 import logging
-from src.shared.dependencies.container import Container
-from src.shared.domain.exceptions.dependencies import DependencyNotRegistered
+from expertise_chats.dependencies.container import Container
+from expertise_chats.exceptions.dependencies import DependencyNotRegistered
 
 from  src.streaming.domain.services.text_to_speech import TextToSpeech
 from src.streaming.infrastructure.deepgram.text_to_speech import DeepgramTextToSpeechService

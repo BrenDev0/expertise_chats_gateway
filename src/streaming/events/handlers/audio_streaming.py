@@ -1,12 +1,11 @@
 import logging
-from typing import Any, Dict
-from expertise_chats.broker import AsyncEventHandlerBase, BaseEvent
-
+from typing import Any, Dict, Union
+from expertise_chats.broker import AsyncEventHandlerBase, InteractionEvent, BaseEvent
+from expertise_chats.schemas.ws import WsPayload
 from src.streaming.domain.services.text_to_speech import TextToSpeech
-from src.streaming.events.schemas import LlmChunk
 from src.shared.utils.ws_connections import WebsocketConnectionsContainer
 from src.streaming.utils.decorators.streaming_error_handler import streaming_error_hanlder
-from src.shared.domain.schemas.ws_responses import WsPayload
+
 logger = logging.getLogger(__name__)
 
 class AudioStreamingHandler(AsyncEventHandlerBase):
@@ -16,23 +15,30 @@ class AudioStreamingHandler(AsyncEventHandlerBase):
     ):
         self.__tts_service = tts_service
 
-    @streaming_error_hanlder(module="streaming.auido.outbound.handler")
     async def handle(self, payload: Dict[str, Any]):
-        event = BaseEvent(**payload)
-        chunk = LlmChunk(**event.event_data)
+        logger.debug(f"Streaming Audio handler received request")
+        
+        event = InteractionEvent(**payload)
+        ws_payload = WsPayload(**event.event_data)
         
         ws = WebsocketConnectionsContainer.resolve_connection(event.chat_id)
         if not ws:
             return 
         
-        audio_chunk = self.__tts_service.transcribe(chunk.chunk)
-        ws_payload = WsPayload(
-            type="AUDIO",
-            data=audio_chunk
-        )
-
-        await ws.send_json(ws_payload.model_dump())
-
+        audio_chunk = self.__tts_service.transcribe(ws_payload.data)
+        ws_payload.data = audio_chunk
+       
+        logger.debug(f"Streaming  Audio Sending")
+        
+        try:
+            await ws.send_json(ws_payload.model_dump())
+        except Exception as e:
+                if "closed" in str(e).lower() or "disconnect" in str(e).lower():
+                    logger.info(f"Connection {event.chat_id} disconnected")
+                    return
+                
+                logger.error(f"Connection id: {event.chat_id} ::::, Error sending data :::: {e}")
+                raise e
         
 
     
