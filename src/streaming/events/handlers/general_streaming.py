@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class GeneralStreamingHandler(AsyncEventHandlerBase):
     async def handle(self, payload: Dict[str, Any]):
-        logger.debug(f"Streaming General handler received request ::: {payload}")
+        # logger.debug(f"Streaming General handler received request")
         
         event = InteractionEvent(**payload)
         ws_payload = WsPayload(**event.event_data)
@@ -16,7 +16,7 @@ class GeneralStreamingHandler(AsyncEventHandlerBase):
         if not ws:
             return 
         
-        logger.debug(f"Streaming  General Sending ::: {ws_payload.model_dump()}")
+        # logger.debug(f"Streaming  General Sending")
         try:
             await ws.send_json(ws_payload.model_dump())
         
@@ -25,7 +25,6 @@ class GeneralStreamingHandler(AsyncEventHandlerBase):
                     logger.info(f"Connection {event.chat_id} disconnected")
                     return
                 
-                logger.error(f"Connection id: {event.chat_id} ::::, Error sending data :::: {e}")
                 return 
         
 

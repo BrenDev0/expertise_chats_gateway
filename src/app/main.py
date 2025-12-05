@@ -8,13 +8,16 @@ from src.app.setup.startup import startup_event
 startup_event ()
 logger = logging.getLogger(__name__)
 app = create_fastapi_app()
-logger.debug("LOGGER LEVEL SET TO DEBUG")
+logger.debug("!!!!! LOGGER LEVEL SET TO DEBUG !!!!!")
 
-if __name__ == "__main__":
+def main():
     uvicorn.run(
         "src.app.main:app",
         host="0.0.0.0",
         port=8000
     )
+
+if __name__ == "__main__":
+    main()
     
     

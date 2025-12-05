@@ -19,7 +19,6 @@ class WebsocketConnectionsContainer:
         key = str(connection_id)
         connection = cls._active_connections.get(key)
         if not connection:
-            logger.info(f"Connection {key} not found in get_connection()")
             return None
 
         return connection

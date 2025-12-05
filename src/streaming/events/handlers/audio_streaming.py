@@ -16,7 +16,7 @@ class AudioStreamingHandler(AsyncEventHandlerBase):
         self.__tts_service = tts_service
 
     async def handle(self, payload: Dict[str, Any]):
-        logger.debug(f"Streaming Audio handler received request ::: {payload}")
+        logger.debug(f"Streaming Audio handler received request")
         
         event = InteractionEvent(**payload)
         ws_payload = WsPayload(**event.event_data)
@@ -28,7 +28,7 @@ class AudioStreamingHandler(AsyncEventHandlerBase):
         audio_chunk = self.__tts_service.transcribe(ws_payload.data)
         ws_payload.data = audio_chunk
        
-        logger.debug(f"Streaming  Audio Sending ::: {ws_payload.model_dump()}")
+        logger.debug(f"Streaming  Audio Sending")
         
         try:
             await ws.send_json(ws_payload.model_dump())
