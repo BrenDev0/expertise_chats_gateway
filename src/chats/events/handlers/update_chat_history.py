@@ -3,6 +3,7 @@ from typing import Dict, Any
 from expertise_chats.broker import EventHandlerBase, InteractionEvent
 from expertise_chats.errors.error_handler import handle_error
 from src.chats.application.use_cases.update_chat_history import UpdateChatHistory
+from src.chats.domain.schemas.chats import GenerateChatTitle
 from expertise_chats.broker import Producer
 from src.chats.domain.entities.message import Message
 
@@ -35,14 +36,21 @@ class UpdateChatHistoryHandler(EventHandlerBase):
 
                 event.event_data = llm_event_data
                 
-                logger.debug(f"Publishing to {event.agent_id}.process ::: {event}")
+                logger.debug(f"Publishing to {event.agent_id}.process ::: {event.model_dump()}")
                 self.___producer.publish(
                     routing_key=f"{event.agent_id}.process",
                     event_message=event
                 )
 
                 if len(chat_history) == 1:
-                    logger.debug("Publishing to chats.title.generate ::: {event}")
+                    generate_title_data = GenerateChatTitle(
+                        chat_id=event.chat_id,
+                        first_message=message.text
+                    )
+
+                    event.event_data = generate_title_data.model_dump()
+
+                    logger.debug(f"Publishing to chats.title.generate ::: {event.model_dump()}")
                     self.___producer.publish(
                         routing_key="chats.title.generate",
                         event_message=event

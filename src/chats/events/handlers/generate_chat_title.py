@@ -1,8 +1,7 @@
 import logging
 from openai import OpenAI
 from typing import Dict, Any
-from expertise_chats.broker import AsyncEventHandlerBase, InteractionEvent, Producer
-from src.shared.domain.repositories.data_repository import DataRepository
+from expertise_chats.broker import EventHandlerBase, InteractionEvent, Producer
 from src.chats.domain.schemas.chats import GenerateChatTitle
 from src.chats.application.use_cases.update_chat import UpdateChat
 from src.chats.domain.schemas.chats import ChatUpdate
@@ -12,7 +11,7 @@ from expertise_chats.errors.error_handler import handle_error
 logger = logging.getLogger(__name__)
 
 
-class GenerateChatTitleHandler(AsyncEventHandlerBase):
+class GenerateChatTitleHandler(EventHandlerBase):
     def __init__(
         self,
         update_chat: UpdateChat,
@@ -22,7 +21,7 @@ class GenerateChatTitleHandler(AsyncEventHandlerBase):
         self.__producer = producer
         self.__client = OpenAI()
 
-    async def handle(self, payload: Dict[str, Any]):
+    def handle(self, payload: Dict[str, Any]):
         logger.debug(f"Generate chat title handler received request ::: {payload}")
 
         try: 
@@ -30,7 +29,7 @@ class GenerateChatTitleHandler(AsyncEventHandlerBase):
             event_data = GenerateChatTitle(**event.event_data)
     
             response = self.__client.responses.create(
-                model="gpt-4.0",
+                model="gpt-4.1",
                 input=f"""
                 summerize the the users message to a short and informative chat title
 
@@ -52,7 +51,7 @@ class GenerateChatTitleHandler(AsyncEventHandlerBase):
 
             ws_payload = WsPayload(
                 type="TITLE",
-                data=updated_chat.modeldump()
+                data=updated_chat.model_dump()
             )
 
             event.event_data = ws_payload

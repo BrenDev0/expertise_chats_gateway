@@ -86,5 +86,5 @@ def __initialize_chats_queues():
 
 
 
-def initialize_messages_broker():
+def initialize_chats_broker():
     __initialize_chats_queues()
