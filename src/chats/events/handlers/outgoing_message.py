@@ -16,7 +16,7 @@ class OutgoingMessageHandler(EventHandlerBase):
         self.__create_message = create_message
         self.__producer = producer
 
-    async def handle(self, payload: Dict[str, Any]):
+    def handle(self, payload: Dict[str, Any]):
         logger.debug(f"Outgoing message handler received request ::: {payload}")
 
         try:

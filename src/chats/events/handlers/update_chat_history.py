@@ -30,8 +30,6 @@ class UpdateChatHistoryHandler(EventHandlerBase):
 
             if not event.turn_complete:
                 llm_event_data = {
-                    "chat_id": event.chat_id,
-                    "company_id": event.company_id,
                     "chat_history": chat_history
                 }
 
