@@ -25,5 +25,5 @@ class ChatCreateResponse(ChatConfig):
     chat_id: UUID
 
 class GenerateChatTitle(ChatCreateResponse):
-    pass
+    first_message: str
 

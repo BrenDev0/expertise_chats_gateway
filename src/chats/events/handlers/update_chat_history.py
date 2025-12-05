@@ -40,6 +40,14 @@ class UpdateChatHistoryHandler(EventHandlerBase):
                     routing_key=f"{event.agent_id}.process",
                     event_message=event
                 )
+
+                if len(chat_history) == 1:
+                    logger.debug("Publishing to chats.title.generate ::: {event}")
+                    self.___producer.publish(
+                        routing_key="chats.title.generate",
+                        event_message=event
+                    )
+
         except Exception as e:
             logger.error(str(e))
             handle_error(

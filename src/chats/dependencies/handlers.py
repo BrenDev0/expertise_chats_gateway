@@ -4,7 +4,9 @@ from expertise_chats.exceptions.dependencies import DependencyNotRegistered
 from src.chats.events.handlers.incomming_message import IncommingMessageHandler
 from src.chats.events.handlers.outgoing_message import OutgoingMessageHandler
 from src.chats.events.handlers.update_chat_history import UpdateChatHistoryHandler
-from src.chats.dependencies.use_cases import get_create_message_use_case, get_update_chat_history_use_case
+from src.chats.events.handlers.generate_chat_title import GenerateChatTitleHandler
+
+from src.chats.dependencies.use_cases import get_create_message_use_case, get_update_chat_history_use_case, get_update_chat_use_case
 from src.shared.dependencies.producers import get_producer
 logger = logging.getLogger(__name__)
 
@@ -62,6 +64,23 @@ def get_chat_history_handler() -> UpdateChatHistoryHandler:
     except DependencyNotRegistered:
         handler = UpdateChatHistoryHandler(
             update_chat_history=get_update_chat_history_use_case(),
+            producer=get_producer()
+        )
+        
+        Container.register(instance_key, handler)
+        logger.info(f"{instance_key} registered")
+
+    return handler
+
+
+def get_generate_chat_title_handler() -> GenerateChatTitleHandler:
+    try:
+        instance_key = "generate_chat_title_handler"
+        handler = Container.resolve(instance_key)
+    
+    except DependencyNotRegistered:
+        handler = GenerateChatTitleHandler(
+            update_chat=get_update_chat_use_case(),
             producer=get_producer()
         )
         
