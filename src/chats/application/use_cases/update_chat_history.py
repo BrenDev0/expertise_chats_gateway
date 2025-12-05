@@ -32,11 +32,11 @@ class UpdateChatHistory:
                 limit=9
             ) or []
 
-            chat_history = [new_message.model_dump(exclude_unset=False)]
+            chat_history = [new_message.model_dump(exclude={"chat_id", "sender", "message_id", "created_at"}, exclude_unset=False)]
         
         else: 
             chat_history = session
-            chat_history.insert(0, new_message.model_dump(exclude_unset=False))
+            chat_history.insert(0, new_message.model_dump(exclude={"chat_id", "sender", "message_id", "created_at"}, exclude_unset=False))
 
             if len(chat_history) > 10:
                 chat_history.pop()

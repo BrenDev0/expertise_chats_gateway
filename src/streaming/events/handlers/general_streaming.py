@@ -26,7 +26,7 @@ class GeneralStreamingHandler(AsyncEventHandlerBase):
                     return
                 
                 logger.error(f"Connection id: {event.chat_id} ::::, Error sending data :::: {e}")
-                raise e
+                return 
         
 
     

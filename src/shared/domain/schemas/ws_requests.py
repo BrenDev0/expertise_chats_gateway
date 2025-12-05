@@ -7,9 +7,5 @@ class InteractionRequest(BaseModel):
     agent_id: UUID
     input: str
     voice: Optional[bool] = False
-
-    model_config = ConfigDict(
-        extra="forbid"
-    )
     
 
